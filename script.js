@@ -1,15 +1,20 @@
 let actionInput = document.querySelector(".action-input")
 let logBtn = document.querySelector(".log-btn")
-let formError = document.querySelector(".form-error")
+let formMessage = document.querySelector(".form-message")
 let entriesContainer = document.querySelector(".entries")
 let entryCount = document.querySelector(".entry-count")
 let stBtn = document.querySelector(".status-btn")
 let statusInput = document.querySelector(".status-input")
-let statusError = document.querySelector(".status-error")
+let statusMessage = document.querySelector(".status-message")
+let undoBtn = document.querySelector(".undo-btn")
+let redoBtn = document.querySelector(".redo-btn")
+let undoRedoError = document.querySelector(".undo-redo-error")
 
 let history = []
 
 let pendingEntry = []
+
+let undoRedoHolder = []
 
 function renderEntries(){
     entriesContainer.innerHTML = ""
@@ -38,24 +43,29 @@ function renderEntries(){
 
 logBtn.addEventListener('click',function(){
     if(actionInput.value == ""){
-        formError.innerText = "Enter a task"
+        formMessage.innerText = "Enter a task"
+        formMessage.classList.add('form-error')
         return
     }
     pendingEntry.push({
         action:actionInput.value,
         timestamp:new Date().toLocaleString()
     })
-        formError.innerHTML = "Task requires status"
+        formMessage.innerHTML = "Submit status next, action successfully logged"
+        formMessage.classList.add('form-confirmation')
 })
 
 stBtn.addEventListener('click',function(){
 
     if(statusInput.value == ""){
-        statusError.innerText = "Enter a task status"
-        return}
+        statusMessage.innerText = "Enter a task status"
+        statusMessage.classList.add("status-error")
+        return
+    }
 
      if(pendingEntry.length === 0){
-    statusError.innerText = "Enter a task first"
+    statusMessage.innerText = "Submit a task first"
+    statusMessage.classList.add("status-error")
     return
 }
 
@@ -64,16 +74,60 @@ stBtn.addEventListener('click',function(){
     history.push({
         action: entry.action,
         timestamp: entry.timestamp,
-        status: statusInput.value
+        status: statusInput.value.toLowerCase().trim()
     })
+
+    
 
     actionInput.value = ""
     statusInput.value = ""
 
-    formError.innerText = ""
-    statusError.innerText = ""
+    formMessage.innerText = ""
+    statusMessage.innerText = ""
+    undoRedoError.innerText = ""
 
     renderEntries()
     })
+
+let timedFunc;
+undoBtn.addEventListener('click',function(){
+    if(history.length === 0){
+        undoRedoError.innerText = "There is no log to undo"
+    }else{
+        let unsureAction = history.pop()
+        undoRedoHolder.push(unsureAction)
+        undoRedoError.innerText = `You removed ${unsureAction.action} from log`
+
+        clearTimeout(timedFunc)
+        
+        timedFunc = setTimeout(function(){
+         undoRedoError.innerText = ""
+            }, 2000)
+        
+        renderEntries()
+    }
+})
+
+redoBtn.addEventListener('click',function(){
+    if(undoRedoHolder.length === 0){
+        undoRedoError.innerText = "There is no action to redo"
+    }else{
+    let redidAction  = undoRedoHolder.pop()
+    undoRedoError.innerText = `${redidAction.action} was returned to the log`
+    undoRedoError.classList.add("undo-redo-conf")
+    history.push(redidAction)
+
+    clearTimeout(timedFunc)
+
+    timedFunc = setTimeout(function(){
+        undoRedoError.innerText = ""
+    }, 2000)
+
+    renderEntries()
+    }
+})
+
+
+
 
 renderEntries()

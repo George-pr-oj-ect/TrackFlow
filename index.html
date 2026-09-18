@@ -11,27 +11,34 @@
 </head>
 <body>
     <div class="app">
-        <header class="topbar">
-            <div class="brand">
-                <span class="brand-mark">◆</span>
-                <span class="brand-name">TrackFlow</span>
-            </div>
-            <p class="brand-subtitle">Activity & Audit Log</p>
-        </header>
+       <header class="topbar">
+    <div class="brand">
+        <span class="brand-mark">◆</span>
+        <span class="brand-name">TrackFlow</span>
+    </div>
+    <p class="brand-subtitle">Activity & Audit Log</p>
+
+    <div class="history-controls">
+        <button class="undo-btn" title="Undo last action">↺ Undo</button>
+        <button class="redo-btn" title="Redo undone action">↻ Redo</button>
+    </div>
+        <p class="undo-redo-error"></p>
+</header>
 
         <main class="layout">
             <section class="log-form">
                 <h2>Log an action</h2>
                 <input type="text" class="action-input" placeholder="What happened? e.g. Created invoice #4521">
                 <button class="log-btn">Log Action</button>
-                <p class="form-error"></p>
+                <p class="form-message"></p>
             </section>
 
             <section class="log-form">
                 <h2>Log action status</h2>
                 <input type="text" class="status-input" placeholder="What is the action status? e.g. Finished, Pending">
                 <button class="status-btn">Log Status</button>
-                <p class="status-error"></p>
+                <p class="status-message"></p>
+                
             </section>
 
             <section class="log-feed">
