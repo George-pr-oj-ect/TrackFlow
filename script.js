@@ -1,3 +1,27 @@
+let statusColors = {
+    "finished": { bg: "rgba(45, 212, 191, 0.12)", text: "#2dd4bf" },
+    "pending": { bg: "rgba(250, 204, 21, 0.12)", text: "#facc15" },
+    "in progress": { bg: "rgba(96, 165, 250, 0.12)", text: "#60a5fa" },
+    "done": { bg: "rgba(74, 222, 128, 0.12)", text: "#4ade80" },
+    "under review": { bg: "rgba(192, 132, 252, 0.12)", text: "#c084fc" },
+    "approved": { bg: "rgba(52, 211, 153, 0.12)", text: "#34d399" },
+    "rejected": { bg: "rgba(248, 113, 113, 0.12)", text: "#f87171" },
+    "on hold": { bg: "rgba(251, 146, 60, 0.12)", text: "#fb923c" },
+    "cancelled": { bg: "rgba(148, 163, 184, 0.15)", text: "#94a3b8" },
+    "unfinished": { bg: "rgba(244, 63, 94, 0.12)", text: "#fb7185" }
+}
+ 
+// Fallback for any status word not in the list above
+let defaultStatusColor = { bg: "rgba(148, 163, 184, 0.12)", text: "#cbd5e1" }
+ 
+// Helper function - call this instead of classList.add for status badges
+function applyStatusStyle(element, status){
+    let colors = statusColors[status] || defaultStatusColor
+    element.style.backgroundColor = colors.bg
+    element.style.color = colors.text
+}
+
+let deleteAction = document.querySelector(".modal-delete")
 let actionInput = document.querySelector(".action-input")
 let logBtn = document.querySelector(".log-btn")
 let formMessage = document.querySelector(".form-message")
@@ -21,6 +45,7 @@ let modalClose = document.querySelector(".modal-close")
 let loggedByInput = document.querySelector(".logged-by-input")
 let actionMessage = document.querySelector(".action-message")
 let loggedByMessage = document.querySelector(".logged-by-message")
+
 
 
 let history = []
@@ -50,10 +75,13 @@ function renderEntries(){
             <span class="entry-time">${entry.timestamp}</span>
         </div>
     </div>
-    <span class="entry-status status-${entry.status}">${entry.status}</span>
+    <span class="entry-status" data-status="${entry.status}">${entry.status}</span>
 `
 
         entriesContainer.appendChild(entryDiv)
+        let statusBadge = entryDiv.querySelector(".entry-status")
+        applyStatusStyle(statusBadge, entry.status)
+
         entryDiv.addEventListener('click',function(){
             let currentHead = buildLinkedList(history)
             let node = currentHead
@@ -84,6 +112,9 @@ logBtn.addEventListener('click',function(){
 
         actionMessage.innerText = ""
         loggedByMessage.innerText = ""
+        
+        actionInput.value = ""
+        loggedByInput.value = ""
 })
 
 stBtn.addEventListener('click',function(){
@@ -195,12 +226,12 @@ function showEntryDetail(node){
     modalTime.innerText = `${node.data.timestamp}`
     modalStatus.innerText = `${node.data.status}`
     modalStatus.className = "modal-status"
-    modalStatus.classList.add(`status-${node.data.status}`)
+    applyStatusStyle(modalStatus, node.data.status)
     modalUsername.innerText = `${node.data.loggedBy}`
     modalAvatar.src = `https://ui-avatars.com/api/?name=${node.data.loggedBy}`
 }
 
- modalClose.addEventListener('click',function(){
+modalClose.addEventListener('click',function(){
         modalOverlay.classList.remove("open")
 })
 
@@ -216,6 +247,14 @@ modalPrev.addEventListener('click',function(){
         currentEntryNode = currentEntryNode.prev
         showEntryDetail(currentEntryNode)
     }
+})
+
+deleteAction.addEventListener('click',function(){
+history = history.filter(entry => entry !== currentEntryNode.data)
+
+modalOverlay.classList.remove("open")
+renderEntries()
+
 })
 
 renderEntries()
